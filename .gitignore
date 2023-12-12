@@ -1,7 +1,7 @@
 __pychache__/
 */__pycache__
 *.pyc
-trash*
+# trash*
 .env
 Pipfile
 Pipfile.lock
