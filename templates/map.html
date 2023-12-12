@@ -1,0 +1,302 @@
+<head>
+
+   
+</head>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+
+{% comment %} <body> {% endcomment %}
+<div id='map'></div>
+
+<script type="text/javascript">
+
+    //var clrscheme={0:"#ffff99", 1:"#99ff99",2:"#66cc99", 3:"#336633", 4:"#114411"}
+    //var clrscheme={0:"#d2b48c", 1:"#d4af37",2:"#faf884", 3:"#6aa121", 4:"#254117"};
+    var clrscheme={0:"#d2b48c", 1:"#737400",2:"#faf884", 3:"#6aa121", 4:"#254117"};
+
+    var myStylePoly = function(properties, zoom) { 
+        var fillOpacity= 0.6;
+        if (zoom>16){
+            var fillOpacity= 0;
+        }
+        var st= {weight: 0.4, color:'grey', fillColor: clrscheme[properties.draw_class],fillOpacity: fillOpacity, fill: true};        
+        return st;                     
+        };
+
+    var myStylePolyDet = function(properties, zoom) { 
+        var fill= true;
+        if (zoom>16){
+            var st= {weight: 0, fillColor: clrscheme[properties.draw_class],fillOpacity: .6, fill: fill};
+        } else{ var st={weight: 0,  fill: false}};
+                
+        return st;                     
+        };
+
+    
+    google.charts.load('current', {'packages':['corechart']});    
+
+    
+
+/*
+    var tiles = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a> | Map Authored by <a href="https://bazini627.github.io/" target="blank">Matthew Bacinskas</a> | <a href="https://getbounds.com">Malcolm Meyer</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+    */
+    var carto= L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a> | Map Authored by <a href="https://bazini627.github.io/" target="blank">Matthew Bacinskas</a> | <a href="https://getbounds.com">Malcolm Meyer</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+      });
+    var mbUrl = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.jpg', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+
+    });
+    var options = {
+        center: [55.0,28.9],
+        zoom: 8,
+        minZoom: 8,
+        maxZoom: 17,
+        layers: [carto,mbUrl]
+      };
+    var map=L.map('map', options); 
+    var baseMaps = {
+        "спутник": mbUrl,
+        "карта": carto,
+        
+    };
+
+    
+
+
+    var pbfLayer=L.vectorGrid.protobuf(
+        "/tiles/{z}/{x}/{y}.pbf", 
+        {
+        //rendererFactory: L.canvas.tile,
+        rendererFactory: L.svg.tile,
+        vectorTileLayerStyles: { 'poly': myStylePoly, 'poly_det': myStylePolyDet}, //'poly_det': myStylePolyDet }, 
+        interactive: true,
+        getFeatureId: function(feature) {
+            return feature.properties.id
+        }}
+        ).addTo(map);     
+    
+    var overlay={'поля': pbfLayer}
+    L.control.layers(baseMaps, overlay).addTo(map);
+
+    pbfLayer.on( "mouseover mouseout", function(e) {
+        if (e.layer.feature) {
+                var prop = e.layer.feature.properties;						
+            }else {
+                var prop = e.layer.properties;					
+            } 
+        if (e.type=="mouseover"){
+            pbfLayer.setFeatureStyle(prop.id, {weight: 4, color: "lightgray", fillColor: clrscheme[prop.draw_class],fillOpacity: 0.6, fill: true} );
+        }
+        else {pbfLayer.resetFeatureStyle(prop.id)};                       
+        });
+    
+    pbfLayer.on( "click", function(e) { 
+        if (e.layer.feature) {
+            var props = e.layer.feature.properties;
+        }else {
+            var props = e.layer.properties;
+        };    
+           
+        getchart(props);
+
+    });
+
+    
+
+
+
+
+
+    
+    /*
+    window.addEventListener(
+        "map:init", 
+        function(e){
+            map=e.detail.map;    
+            var pbfLayer;
+            pbfLayer=L.vectorGrid.protobuf(
+                "/tiles/{z}/{x}/{y}.pbf", 
+                {
+                //rendererFactory: L.canvas.tile,
+                rendererFactory: L.svg.tile,
+                vectorTileLayerStyles: { 'poly': myStylePoly, 'poly_det': myStylePolyDet}, //'poly_det': myStylePolyDet }, 
+                interactive: true,
+                getFeatureId: function(feature) {
+                    return feature.properties.id
+                }}
+                ).addTo(map);     
+            var curid;
+            pbfLayer.on( "mouseover mouseout", function(e) {
+                if (e.layer.feature) {
+						var prop = e.layer.feature.properties;						
+					}else {
+						var prop = e.layer.properties;					
+					} 
+                if (e.type=="mouseover"){
+                    pbfLayer.setFeatureStyle(prop.id, {weight: 4, color: "lightgray", fillColor: clrscheme[prop.draw_class],fillOpacity: 0.6, fill: true} );
+                }
+                else {pbfLayer.resetFeatureStyle(prop.id)};                       
+                });
+         
+            pbfLayer.on( "click", function(e) {
+                if (e.layer.feature) {
+						var prop = e.layer.feature.properties;
+					}else {
+						var prop = e.layer.properties;
+					};
+                    console.log(prop.id.length);
+                var classes=JSON.parse(prop.classes);              
+                var data = google.visualization.arrayToDataTable([
+                    ['Type', 'Ha'],
+                    ['0', classes['0']],
+                    ['1', classes['1']],
+                    ['2', classes['2']],
+                    ['3', classes['3']],
+                    ['4', classes['4']]
+                    ]);
+                var options = {'title':`Vegetation distribution \n ${prop.id}`, 
+                                'width':550, 
+                                'height':400,
+                                colors: Object.values(clrscheme)};
+
+                var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+                chart.draw(data, options);
+      
+            });
+  
+            map.setView([55.0,28.9], 8);
+        }, false);
+    */
+    
+    var classnames={"0":"Пахотные земли под агроценозами",
+                    "1":"Бурьянистые залежи",
+                    "2":"Корневищные и рыхлокустовые залежи",
+                    "3":"Рудерализованные и закустаренные луга",
+                    "4":"Земли под древесно-кустарниковой растительностью"};
+
+    
+
+    var hpv_id=[];
+    var hpv_name=[]
+    //hpv_all.push('Витебский район');
+    {% for obj in hpv.all %}
+        hpv_id.push("{{obj.id}}");
+        hpv_name.push("{{obj.name}}");
+    {% endfor %}
+    function getchart(props){
+        
+        var classes=JSON.parse(props["classes"]); 
+        const sumValues = obj => Object.values(obj).reduce((a, b) => a + b);
+        var ovar=sumValues(classes)/10000;
+        var rows = Object.entries(classnames).map(function(k) {return [k[0], k[1], classes[k[0]]/10000, classes[k[0]]/10000/ovar] });
+        
+        rows.sort(function (a, b) {
+            if (a[3] < b[3]) {
+              return 1;
+            }
+            if (a[3] > b[3]) {
+              return -1;
+            } 
+            return 0;
+          });
+        var cnt=0.1        
+        for (var i=0; i<rows.length; i++){
+            if (rows[i][3]>=0.1){                
+                rows[i].push(0.0)}
+            else {rows[i].push(cnt); cnt+=0.1}
+
+        };
+        rows.sort(function (a, b) {
+            if (a[0] > b[0]) {
+              return 1;
+            }
+            if (a[0] < b[0]) {
+              return -1;
+            } 
+            return 0;
+          });
+
+        var id=props["id"];
+        
+        var numbrs=[... new Set([id.slice(0,7)+'000', id.slice(0,10), id])]; 
+        
+        numbrs=numbrs.map(function(el){
+            var nb=hpv_id.findIndex(element => element.includes(el));
+            return hpv_name[nb]?hpv_name[nb]:el;
+        })
+        
+        var name=numbrs.join("\r\n").replace(/&quot;/g, '\"'); 
+            
+         
+        var slices=rows.map(function(row, i){            
+            return [i,  {offset: row[4]}]
+        });
+        
+        var want = new Map(slices);
+        want = slices.reduce((a, v) => {
+            a[v[0]] = v[1];
+            return a;
+          }, {});
+        
+
+        rows=rows.map(function(k){return [k[1], k[2]]})
+        //var name=props["id"];
+        var data = new google.visualization.DataTable();
+
+        var formatter = new google.visualization.NumberFormat(
+            {suffix: ' га', groupingSymbol: ' ', fractionDigits: 1});
+        
+
+
+        data.addColumn('string', 'Type');
+        data.addColumn('number', 'area, Ha');
+        data.addRows(rows);
+        formatter.format(data, 1); // Apply formatter to second column
+        var options = {'title':`РАСПРЕДЕЛЕНИЕ ЗЕМЕЛЬ \n ${name}`,
+                        'legend':{'position':'top', 'maxLines':3}, 
+                        chartArea: {bottom: '5%', width:'75%', height:'65%'},        
+                        colors: Object.values(clrscheme),
+                        slices: want,
+                        pieStartAngle: 100,
+                        sliceVisibilityThreshold: 0,
+                        backgroundColor:{fill:'transparent'},
+                       
+                      
+
+                    };
+        
+        var node=document.getElementById('piechart');
+        node.className = node.className + " push-down";  
+        //node.style.display?true:node.style.display='block';
+        
+        //node.style.display='block'; 
+        var chart = new google.visualization.PieChart(node);
+        chart.draw(data, options);
+        
+        }
+
+
+    $("li").click(function (event) {
+        var element = $(event.target);
+        //var nameId = element.attr("id");
+        var classes = element.attr("classes");
+        var id=element.attr("id");
+        var geom = L.geoJSON(JSON.parse(element.attr("geom"))); 
+        getchart({'id':id, 'classes':classes});        
+        map.fitBounds(geom.getBounds());
+    });       
+  
+
+</script>
+
+{% comment %} </body> {% endcomment %}

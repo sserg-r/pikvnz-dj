@@ -1,0 +1,9 @@
+__pychache__/
+*/__pycache__
+*.pyc
+trash*
+.env
+Pipfile
+Pipfile.lock
+backup.penv
+db_dump

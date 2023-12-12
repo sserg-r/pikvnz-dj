@@ -1,0 +1,128 @@
+{% comment %} {% load leaflet_tags %} {% endcomment %}
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <title>ПИК ВНЗ</title>
+  <style type="text/css">
+    body, html {
+      height: 100%;
+    }
+
+
+   .header { 
+    height: 5%;
+    width: 100; 
+    background: #ccc;
+    
+    float: top;
+   }
+   .sidebar { 
+    width: 25%;     
+    box-sizing: border-box; 
+    height: 95%;   
+    box-shadow: inset 0 0 0 3px #eeeeee;
+    background: Gainsboro;   
+    float: right; 
+    
+    
+   }
+   #map { 
+    width: 75%; 
+    height: 95vh;
+    
+    background: 'LightGray';    
+    float: left;
+     
+   }
+
+    #piechart { 
+    position: absolute;
+    width: 23%; 
+    height: 40%;
+    
+    float: back;     
+    margin: 20px;
+    border-radius: 40px;
+    background: #fff;
+    /*display: none;*/
+    display: block;
+    opacity: 0;
+     
+   }
+
+   @-webkit-keyframes pushDown {
+    0% {
+      top: 80%;
+      opacity: 0.1;
+    }    
+    50% {
+      top: 70%;
+      opacity: 0.5;
+    }    
+    100% {
+      top: 60%;
+      opacity: 1;
+    }
+  }
+  
+  
+  .push-down {
+      -webkit-animation: pushDown 0.5s forwards linear;
+  }
+  
+
+   .list { 
+    width: 100%; 
+    height: 60%;
+    float: top; 
+   
+    /* overflow: scroll; */
+    overflow: auto;
+     
+   }
+  </style> 
+</head>
+<body>
+    
+    <div class="header"><h1>ПИК ВНЗ</h1></div>
+    <div class="sidebar">
+
+      <div class='list'>{% include "list.html" %}</div>
+      
+      
+      <div id="piechart"></div>
+    
+    </div>
+
+    <div class="map">{% include "map.html"  %}</div>
+
+    <div class="footer"></div>
+
+</body>
+</html>
+
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script type="text/javascript">
+//google.charts.load('current', {'packages':['corechart']});
+//google.charts.setOnLoadCallback(drawChart);
+
+// Draw the chart and set the chart values
+function drawChart() {
+  var data = google.visualization.arrayToDataTable([
+  ['Type', 'Ha'],
+  ['Bare', 8],
+  ['Bush', 2],
+  ['Tree', 4]
+]);
+
+  // Optional; add a title and set the width and height of the chart
+  var options = {'title':'Vegetation distribution'} //, 'width':550, 'height':400};
+
+  // Display the chart inside the <div> element with id="piechart"
+  var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+  chart.draw(data, options);
+}
+</script>

@@ -1,0 +1,10 @@
+db_dump
+*/__pycache__
+.gitignore
+Pipfile
+Pipfile.lock
+Procfile
+backup.penv
+root certificate.pem
+trash.py
+trash1.py 
