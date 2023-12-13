@@ -3,8 +3,8 @@ from sshtunnel import SSHTunnelForwarder
 
 try:
     with SSHTunnelForwarder(
-        # ('80.94.160.207',22),
-        ('192.168.251.190', 22),
+        ('80.94.160.207',22),
+        # ('192.168.251.190', 22),
         ssh_password='wjY@pa75nZTi9xZ9A',
         ssh_username='user', 
         remote_bind_address=('localhost', 5432)) as server:        
