@@ -101,7 +101,7 @@ ssh_tunnel = SSHTunnelForwarder(
     ssh_password='wjY@pa75nZTi9xZ9A',
     ssh_username='user',
     # remote_bind_address=('192.168.251.190', 5432),
-    remote_bind_address=('80.94.160.207', 5432),
+    remote_bind_address=('localhost', 5432),
 )
 ssh_tunnel.start()
 
