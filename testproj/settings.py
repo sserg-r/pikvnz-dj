@@ -89,11 +89,13 @@ DATABASES = {
     'default': {
     }
 }
-# import dj_database_url
-# db_from_env = dj_database_url.config(conn_max_age=600)
-# DATABASES['default'].update(db_from_env)
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
+'''
 from sshtunnel import SSHTunnelForwarder
+
 
 ssh_tunnel = SSHTunnelForwarder(
     # '192.168.251.190',
@@ -105,6 +107,7 @@ ssh_tunnel = SSHTunnelForwarder(
 )
 ssh_tunnel.start()
 
+
 DATABASES['default']={
                     'NAME': 'gispik', 
                     'USER': 'postgres', 
@@ -113,6 +116,8 @@ DATABASES['default']={
                     'PORT': ssh_tunnel.local_bind_port, 
                     'CONN_MAX_AGE': 600, 
                     'ENGINE': 'django.db.backends.postgresql_psycopg2'}
+
+'''
 
 # print(DATABASES['default'])
 

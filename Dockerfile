@@ -5,6 +5,7 @@ RUN \
  apt-get -y upgrade &&\
  apt-get -y install libpq-dev gcc
 
+RUN pip3 install --upgrade pip
 
 ENV PYTHONUNBUFFERED=1
 ENV DATABASE_URL=postgres://postgres:1@host.docker.internal:5432/gispik
